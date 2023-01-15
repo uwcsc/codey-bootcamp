@@ -4,7 +4,6 @@ import { readFileSync } from "fs";
 import { writeFile } from "fs/promises";
 import { PDFDocument } from "pdf-lib";
 import { Logger } from "winston";
-import { applyBonusByUserId } from "../components/coin";
 import { vars } from "../config";
 import { sendKickEmbed } from "../utils/embeds";
 import { convertPdfToPic } from "../utils/pdfToPic";
@@ -128,10 +127,5 @@ export const initMessageCreate = async (
   // If channel is in resumes, convert the message attachment to an image
   if (message.channelId === RESUME_CHANNEL_ID) {
     await convertResumePdfsIntoImages(message);
-  }
-
-  // Ignore DMs; include announcements, thread, and regular text channels
-  if (message.channel.type !== "DM") {
-    await applyBonusByUserId(message.author.id);
   }
 };

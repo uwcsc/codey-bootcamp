@@ -1,6 +1,5 @@
 import { blue, green, magenta, magentaBright, white } from "colorette";
 import { Client, TextChannel } from "discord.js";
-import { initCrons } from "../components/cron";
 import { initEmojis } from "../components/emojis";
 import { vars } from "../config";
 import { logger } from "../logger/default";
@@ -47,6 +46,5 @@ export const initReady = (client: Client): void => {
   printBanner();
   client.user!.setActivity("CSC | .help");
   sendReady(client);
-  initCrons(client);
   initEmojis(client);
 };
