@@ -1,3 +1,4 @@
+import { SapphireClient } from "@sapphire/framework";
 import {
   GuildMember,
   Role,
@@ -5,26 +6,36 @@ import {
   Message,
   GuildChannel,
   VoiceState,
+  GuildBasedChannel,
 } from "discord.js";
-import { CommandoClient } from "discord.js-commando";
 import { getEmojiByName } from "../components/emojis";
+import { vars } from "../config";
+
 const Keyv = require("keyv");
 
-const BOOTCAMP_GUILD_ID: string = process.env.BOOTCAMP_GUILD_ID || ".";
+const BOOTCAMP_GUILD_ID: string = vars.BOOTCAMP_GUILD_ID || ".";
 export const BootcampSettings = new Keyv();
 
-export const initBootcamp = async (client: CommandoClient): Promise<void> => {
+/*
+  Initialize the channels and roles for Bootcamp.
+*/
+export const initBootcamp = async (client: SapphireClient, critique_time = 30, update_waiting_times = false): Promise<void> => {
   const bootcamp = await client.guilds.fetch(BOOTCAMP_GUILD_ID);
   const mentorGetRole = <Role>(
     bootcamp.roles.cache.find((role) => role.name === "Mentor")
   );
   BootcampSettings.set("mentor_role", mentorGetRole.id);
-  BootcampSettings.set("critique_time", 30);
-  BootcampSettings.set("update_waiting_times", false);
+  BootcampSettings.set("critique_time", critique_time);
+  BootcampSettings.set("update_waiting_times", update_waiting_times);
 };
 
+/*
+  Add a list of mentors to the "Mentor" role.
+*/
 export const addToMentorList = async (message: Message): Promise<void> => {
-  if ((<TextChannel>message.channel).name === "mentor-ids") {
+  const mentorIdChannel = <TextChannel>message.channel;
+
+  if (mentorIdChannel.name === "mentor-ids") {
     const mentorRole = await BootcampSettings.get("mentor_role");
     message?.guild?.members.cache
       .find(
@@ -118,8 +129,6 @@ export const controlMentorMenteeCalls = async (
             !leaver.roles.cache.map((role) => role.id).includes(mentorRole) &&
             feedback != "--none"
           ) {
-            // TEMP # OF CALLS TRACKER
-            console.log(leaver.displayName);
             leaver.send(
               feedback ||
                 `Thanks for taking part in Bootcamp: Resume Reviews! ${getEmojiByName(
@@ -133,30 +142,12 @@ export const controlMentorMenteeCalls = async (
           }
         })();
       }
-      chatChannel?.updateOverwrite(leaver, {
-        VIEW_CHANNEL: false,
-      });
     }
 
-    const queueChannel = <TextChannel>(
-      guild.channels.cache
-        .filter(
-          (channel: GuildChannel) =>
-            channel.name ===
-            oldUserChannel?.name.replace(/ +/g, "-").toLocaleLowerCase() +
-              "-queue"
-        )
-        .first()
-    );
-    const clear = async (): Promise<void> => {
-      const fetched = await queueChannel.messages
-        .fetch({ limit: 100 })
-        .catch(console.log);
-      if (fetched) {
-        const filtered = fetched.filter((msg) => msg.content === newMember.id);
-        queueChannel.bulkDelete(filtered);
-      }
-    };
-    if (queueChannel) clear();
+    let queueChannel: GuildBasedChannel | undefined = undefined;
+    for (let [channelName, channel] of guild.channels.cache) {
+      queueChannel = channel;
+      break;
+    }
   }
 };
