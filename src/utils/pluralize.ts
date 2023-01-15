@@ -9,7 +9,7 @@
  */
 export const pluralize = (singularWord: string, count: number): string => {
   if (count > 1 || count == 0) {
-    return singularWord + 's';
+    return singularWord + "s";
   }
   return singularWord;
 };

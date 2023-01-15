@@ -1,4 +1,4 @@
-import { ENV, vars, varsTemplate } from './config';
+import { ENV, vars, varsTemplate } from "./config";
 
 // Returns whether environment variables are valid
 export const validateEnvironmentVariables = (): void => {

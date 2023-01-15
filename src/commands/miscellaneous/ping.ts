@@ -1,6 +1,6 @@
-import { Command } from '@sapphire/framework';
-import { CodeyCommand } from '../../codeyCommand';
-import { pingCommandDetails } from '../../commandDetails/miscellaneous/ping';
+import { Command } from "@sapphire/framework";
+import { CodeyCommand } from "../../codeyCommand";
+import { pingCommandDetails } from "../../commandDetails/miscellaneous/ping";
 
 export class MiscellaneousPingCommand extends CodeyCommand {
   details = pingCommandDetails;

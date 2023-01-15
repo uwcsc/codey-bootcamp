@@ -1,14 +1,14 @@
-import { container } from '@sapphire/framework';
+import { container } from "@sapphire/framework";
 import {
   CodeyCommandDetails,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
-} from '../../codeyCommand';
+} from "../../codeyCommand";
 
 const uptimeExecuteCommand: SapphireMessageExecuteType = (
   client,
   _messageFromUser,
-  _args,
+  _args
 ): Promise<SapphireMessageResponse> => {
   // In the case where client.uptime is null we return 0
   let totalSeconds = (client.uptime ? client.uptime : 0) / 1000;
@@ -24,8 +24,8 @@ const uptimeExecuteCommand: SapphireMessageExecuteType = (
 };
 
 export const uptimeCommandDetails: CodeyCommandDetails = {
-  name: 'uptime',
-  aliases: ['up', 'timeup'],
+  name: "uptime",
+  aliases: ["up", "timeup"],
   description: "Get Codey's uptime!",
   detailedDescription: `**Examples:**
   \`${container.botPrefix}uptime\`
@@ -33,7 +33,7 @@ export const uptimeCommandDetails: CodeyCommandDetails = {
   \`${container.botPrefix}timeup\``,
 
   isCommandResponseEphemeral: true,
-  messageWhenExecutingCommand: 'Getting uptime...',
+  messageWhenExecutingCommand: "Getting uptime...",
   executeCommand: uptimeExecuteCommand,
   messageIfFailure: "Failed to get Codey's uptime.",
   options: [],

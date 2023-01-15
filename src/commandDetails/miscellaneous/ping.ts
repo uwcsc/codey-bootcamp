@@ -1,15 +1,15 @@
-import { container } from '@sapphire/framework';
-import { Message } from 'discord.js';
+import { container } from "@sapphire/framework";
+import { Message } from "discord.js";
 import {
   CodeyCommandDetails,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
-} from '../../codeyCommand';
+} from "../../codeyCommand";
 
 const pingExecuteCommand: SapphireMessageExecuteType = async (
   client,
   messageFromUser,
-  _args,
+  _args
 ): Promise<SapphireMessageResponse> => {
   const botLatency = client.ws.ping;
 
@@ -18,12 +18,13 @@ const pingExecuteCommand: SapphireMessageExecuteType = async (
   // "when you receive an interaction from a guild that the client is not in."
   // src: https://github.com/discordjs/discord.js/issues/7001#issuecomment-972422214
   const initialResponse = <Message<boolean>>await messageFromUser.reply({
-    content: 'Pong?',
+    content: "Pong?",
     ephemeral: pingCommandDetails.isCommandResponseEphemeral,
     fetchReply: true,
   });
 
-  const apiLatency = initialResponse.createdTimestamp - messageFromUser.createdTimestamp;
+  const apiLatency =
+    initialResponse.createdTimestamp - messageFromUser.createdTimestamp;
   const stringReply = content(botLatency, apiLatency);
 
   // have to use the original interaction to edit the reply
@@ -42,16 +43,16 @@ function content(botLatency: number, apiLatency: number): string {
 }
 
 export const pingCommandDetails: CodeyCommandDetails = {
-  name: 'ping',
-  aliases: ['pong'],
-  description: 'Ping the bot to see if it is alive. :ping_pong:',
+  name: "ping",
+  aliases: ["pong"],
+  description: "Ping the bot to see if it is alive. :ping_pong:",
   detailedDescription: `**Examples:**
       \`${container.botPrefix}ping\`
       \`${container.botPrefix}pong\``,
 
   isCommandResponseEphemeral: true,
-  messageWhenExecutingCommand: 'Ping?',
-  messageIfFailure: 'Failed to receive ping.',
+  messageWhenExecutingCommand: "Ping?",
+  messageIfFailure: "Failed to receive ping.",
   executeCommand: pingExecuteCommand,
   options: [],
   subcommandDetails: {},

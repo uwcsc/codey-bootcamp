@@ -1,30 +1,40 @@
-import { container } from '@sapphire/framework';
-import { Permissions, User } from 'discord.js';
+import { container } from "@sapphire/framework";
+import { Permissions, User } from "discord.js";
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
   SapphireMessageExecuteType,
-} from '../../codeyCommand';
-import { banUser } from '../../components/admin';
-import { vars } from '../../config';
+} from "../../codeyCommand";
+import { banUser } from "../../components/admin";
+import { vars } from "../../config";
 
 // Ban a user
-const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFromUser, args) => {
-  if (!(<Readonly<Permissions>>messageFromUser.member?.permissions).has('BAN_MEMBERS')) {
+const banExecuteCommand: SapphireMessageExecuteType = async (
+  client,
+  messageFromUser,
+  args
+) => {
+  if (
+    !(<Readonly<Permissions>>messageFromUser.member?.permissions).has(
+      "BAN_MEMBERS"
+    )
+  ) {
     return `You do not have permission to use this command.`;
   }
 
-  const user = <User>args['user'];
+  const user = <User>args["user"];
   if (!user) {
-    throw new Error('please enter a valid user mention or ID');
+    throw new Error("please enter a valid user mention or ID");
   }
 
-  const reason = <string>args['reason'];
+  const reason = <string>args["reason"];
   if (!reason) {
-    throw new Error('please enter a valid reason why you are banning the user.');
+    throw new Error(
+      "please enter a valid reason why you are banning the user."
+    );
   }
 
-  const days = <number>args['days'];
+  const days = <number>args["days"];
 
   // Get the GuildMember object corresponding to the user in the guild
   // This is needed because we can only ban GuildMembers, not Users
@@ -41,31 +51,32 @@ const banExecuteCommand: SapphireMessageExecuteType = async (client, messageFrom
 };
 
 export const banCommandDetails: CodeyCommandDetails = {
-  name: 'ban',
+  name: "ban",
   aliases: [],
-  description: 'Ban a user.',
+  description: "Ban a user.",
   detailedDescription: `**Examples:**
   \`${container.botPrefix}ban @jeff spam\``,
 
   isCommandResponseEphemeral: false,
-  messageWhenExecutingCommand: 'Banning user...',
+  messageWhenExecutingCommand: "Banning user...",
   executeCommand: banExecuteCommand,
   options: [
     {
-      name: 'user',
-      description: 'The user to ban.',
+      name: "user",
+      description: "The user to ban.",
       type: CodeyCommandOptionType.USER,
       required: true,
     },
     {
-      name: 'reason',
-      description: 'The reason why we are banning the user.',
+      name: "reason",
+      description: "The reason why we are banning the user.",
       type: CodeyCommandOptionType.STRING,
       required: true,
     },
     {
-      name: 'days',
-      description: "Messages in last 'days' days from user are deleted. Default is 0 days.",
+      name: "days",
+      description:
+        "Messages in last 'days' days from user are deleted. Default is 0 days.",
       type: CodeyCommandOptionType.INTEGER,
       required: false,
     },

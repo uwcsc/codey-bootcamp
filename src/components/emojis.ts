@@ -1,4 +1,4 @@
-import { Client, Emoji } from 'discord.js';
+import { Client, Emoji } from "discord.js";
 
 const emojiList: { [key: string]: Emoji } = {};
 

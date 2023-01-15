@@ -1,6 +1,12 @@
-import { ColorResolvable, GuildMember, Role, RoleManager, User } from 'discord.js';
-import { container } from '@sapphire/framework';
-import { vars } from '../config';
+import {
+  ColorResolvable,
+  GuildMember,
+  Role,
+  RoleManager,
+  User,
+} from "discord.js";
+import { container } from "@sapphire/framework";
+import { vars } from "../config";
 
 const TARGET_GUILD_ID: string = vars.TARGET_GUILD_ID;
 
@@ -9,12 +15,15 @@ export const addOrRemove = {
   remove: false,
 };
 
-const createRole = async (roleName: string, roles: RoleManager): Promise<Role> => {
+const createRole = async (
+  roleName: string,
+  roles: RoleManager
+): Promise<Role> => {
   try {
     // create role object
     const role = {
       name: roleName,
-      color: 'GREY' as ColorResolvable,
+      color: "GREY" as ColorResolvable,
       reason: `AUTOMATED: Creating the role ${roleName}.`,
     };
     return await roles.create(role);
@@ -26,9 +35,11 @@ const createRole = async (roleName: string, roles: RoleManager): Promise<Role> =
 export const updateMemberRole = async (
   member: GuildMember,
   roleName: string,
-  add: boolean,
+  add: boolean
 ): Promise<void> => {
-  let role = (await member.guild.roles.fetch()).find((role) => role.name === roleName);
+  let role = (await member.guild.roles.fetch()).find(
+    (role) => role.name === roleName
+  );
   try {
     if (add) {
       // check if role exists, if not, then create it
@@ -43,9 +54,9 @@ export const updateMemberRole = async (
     }
   } catch (err) {
     throw new Error(
-      `Failed to ${add ? 'add' : 'remove'} the role ${roleName} ${add ? 'to' : 'from'} user ${
-        member.user.tag
-      } (${member.id}).`,
+      `Failed to ${add ? "add" : "remove"} the role ${roleName} ${
+        add ? "to" : "from"
+      } user ${member.user.tag} (${member.id}).`
     );
   }
 };
@@ -57,7 +68,9 @@ export const loadRoleUsers = async (role_id: string): Promise<User[]> => {
   const { client } = container;
 
   // fetches all the users in the server and then filters based on the role
-  const userList = (await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch())
+  const userList = (
+    await (await client.guilds.fetch(TARGET_GUILD_ID)).members.fetch()
+  )
     ?.filter((member) => member.roles.cache.has(role_id))
     .map((member) => member.user);
 

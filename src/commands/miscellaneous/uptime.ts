@@ -1,6 +1,6 @@
-import { Command } from '@sapphire/framework';
-import { CodeyCommand } from '../../codeyCommand';
-import { uptimeCommandDetails } from '../../commandDetails/miscellaneous/uptime';
+import { Command } from "@sapphire/framework";
+import { CodeyCommand } from "../../codeyCommand";
+import { uptimeCommandDetails } from "../../commandDetails/miscellaneous/uptime";
 
 export class MiscellaneousUptimeCommand extends CodeyCommand {
   details = uptimeCommandDetails;

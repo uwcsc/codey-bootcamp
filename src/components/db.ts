@@ -1,12 +1,11 @@
-import { Database, open } from 'sqlite';
-import sqlite3 from 'sqlite3';
-import { logger } from '../logger/default';
+import { Database, open } from "sqlite";
+import sqlite3 from "sqlite3";
+import { logger } from "../logger/default";
 
 let db: Database | null = null;
 
 export const openCommandoDB = async (): Promise<Database> =>
-  await open({ filename: 'db/commando.db', driver: sqlite3.Database });
-
+  await open({ filename: "db/commando.db", driver: sqlite3.Database });
 
 /*
   function: addSQLColumnIfNotExists
@@ -22,16 +21,18 @@ const addSQLColumnIfNotExists = async (
   db: Database,
   tableName: string,
   columnName: string,
-  columnDataType: string,
+  columnDataType: string
 ): Promise<void> => {
   const columns = await db.all(
     `SELECT *
       FROM pragma_table_info('${tableName}')
       WHERE name='${columnName}'
-    `,
+    `
   );
   if (columns.length == 0) {
-    await db.run(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDataType}`);
+    await db.run(
+      `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDataType}`
+    );
   }
 };
 
@@ -42,11 +43,14 @@ const initTables = async (db: Database): Promise<void> => {
 export const openDB = async (): Promise<Database> => {
   if (db == null) {
     db = await open({
-      filename: 'db/bot.db',
+      filename: "db/bot.db",
       driver: sqlite3.Database,
     });
     await initTables(db);
-    logger.info({ message: 'Initialized database and tables.', where: 'openDB' });
+    logger.info({
+      message: "Initialized database and tables.",
+      where: "openDB",
+    });
   }
   return db;
 };

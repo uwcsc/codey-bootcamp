@@ -1,16 +1,16 @@
-import { Message, VoiceChannel, TextChannel } from 'discord.js';
-import { CommandoClient, CommandoMessage } from 'discord.js-commando';
-import { MentorCommand } from '../../utils/commands';
+import { Message, VoiceChannel, TextChannel } from "discord.js";
+import { CommandoClient, CommandoMessage } from "discord.js-commando";
+import { MentorCommand } from "../../utils/commands";
 
 class BootcampKickMenteeCommand extends MentorCommand {
   constructor(client: CommandoClient) {
     super(client, {
-      name: 'kick',
-      aliases: ['remove', 'boot'],
-      group: 'bootcamp',
-      memberName: 'kick',
+      name: "kick",
+      aliases: ["remove", "boot"],
+      group: "bootcamp",
+      memberName: "kick",
       guildOnly: true,
-      description: 'Kick mentees out of your 1 on 1 call.'
+      description: "Kick mentees out of your 1 on 1 call.",
     });
   }
 
@@ -21,27 +21,31 @@ class BootcampKickMenteeCommand extends MentorCommand {
     const track = callChannel?.parent?.name;
 
     const queueVoice = <VoiceChannel>(
-      guild.channels.cache.find((channel) => channel.name === track && channel.type === 'voice')
+      guild.channels.cache.find(
+        (channel) => channel.name === track && channel.type === "voice"
+      )
     );
     const queueChannel = <TextChannel>(
       callChannel?.parent?.children.find(
-        (channel) => channel.name === track?.replace(/ +/g, '-').toLocaleLowerCase() + '-queue'
+        (channel) =>
+          channel.name ===
+          track?.replace(/ +/g, "-").toLocaleLowerCase() + "-queue"
       )
     );
     const callMembers = callChannel?.members;
 
     if (queueVoice && queueChannel && callMembers) {
       if (callMembers?.size < 2) {
-        return message.say('You are already alone in this call.');
+        return message.say("You are already alone in this call.");
       }
       callMembers
         ?.filter((member) => member.id != mentor?.id)
         .forEach((member) => {
           member.voice.setChannel(null);
         });
-      return message.say('Your call is now cleared.');
+      return message.say("Your call is now cleared.");
     }
-    return message.say('You must be in a Mentor/Mentee call room.');
+    return message.say("You must be in a Mentor/Mentee call room.");
   }
 }
 

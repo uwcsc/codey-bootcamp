@@ -1,1 +1,1 @@
-declare module 'stable-marriage';
+declare module "stable-marriage";

@@ -1,6 +1,6 @@
-import { GuildMember } from 'discord.js';
-import { vars } from '../config';
-import { logger } from '../logger/default';
+import { GuildMember } from "discord.js";
+import { vars } from "../config";
+import { logger } from "../logger/default";
 
 const MOD_USER_ID_FOR_BAN_APPEAL: string = vars.MOD_USER_ID_FOR_BAN_APPEAL;
 
@@ -21,7 +21,7 @@ a reason why you think you should be unbanned.
 export const banUser = async (
   member: GuildMember,
   reason: string,
-  days?: number,
+  days?: number
 ): Promise<boolean> => {
   let isSuccessful = false;
   try {
@@ -31,7 +31,7 @@ export const banUser = async (
     isSuccessful = true;
   } catch (err) {
     logger.error({
-      event: 'client_error',
+      event: "client_error",
       error: (err as Error).toString(),
     });
   }

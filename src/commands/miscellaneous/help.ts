@@ -1,6 +1,6 @@
-import { Command } from '@sapphire/framework';
-import { CodeyCommand } from '../../codeyCommand';
-import { helpCommandDetails } from '../../commandDetails/miscellaneous/help';
+import { Command } from "@sapphire/framework";
+import { CodeyCommand } from "../../codeyCommand";
+import { helpCommandDetails } from "../../commandDetails/miscellaneous/help";
 
 export class MiscellaneousHelpCommand extends CodeyCommand {
   details = helpCommandDetails;

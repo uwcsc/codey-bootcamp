@@ -1,6 +1,6 @@
-import { Command } from '@sapphire/framework';
-import { CodeyCommand } from '../../codeyCommand';
-import { banCommandDetails } from '../../commandDetails/admin/ban';
+import { Command } from "@sapphire/framework";
+import { CodeyCommand } from "../../codeyCommand";
+import { banCommandDetails } from "../../commandDetails/admin/ban";
 
 export class AdminBanCommand extends CodeyCommand {
   details = banCommandDetails;
