@@ -13,7 +13,7 @@ const nextMenteeExecuteCommand: SapphireMessageExecuteType = async (
 ): Promise<SapphireMessageResponse> => {
   const mentor = (<GuildMember>messageFromUser.member)?.voice;
   const callChannel = mentor?.channel;
-  const guild = messageFromUser.guild;
+  const guild = messageFromUser.guild!;
   const track = callChannel?.parent?.name;
 
   let front;
