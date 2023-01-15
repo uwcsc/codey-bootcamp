@@ -1,6 +1,24 @@
-import { Collection, Message, MessageEmbed, MessageReaction, Snowflake, User } from 'discord.js';
-import { CommandoClient, CommandoMessage } from 'discord.js-commando';
-import { BaseCommand } from '../../utils/commands';
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+import { ApplyOptions } from '@sapphire/decorators';
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+import { Args, Command, CommandOptions, container } from '@sapphire/framework';
+import {
+  Collection,
+  ColorResolvable,
+  Message,
+  MessageEmbed,
+  MessageReaction,
+  Snowflake,
+  User,
+} from 'discord.js';
+import {
+  adjustCoinBalanceByUserId,
+  getCoinBalanceByUserId,
+  UserCoinEvent,
+} from '../../components/coin';
+import { getCoinEmoji, getEmojiByName } from '../../components/emojis';
 import {
   BlackjackAction,
   BlackjackHand,
@@ -9,45 +27,34 @@ import {
   endGame,
   GameState,
   performGameAction,
-  startGame
+  startGame,
 } from '../../components/games/blackjack';
-import { getEmojiByName } from '../../components/emojis';
-import { adjustCoinBalanceByUserId, getCoinBalanceByUserId, UserCoinEvent } from '../../components/coin';
+import { pluralize } from '../../utils/pluralize';
 
 const DEFAULT_BET = 10;
 const MIN_BET = 10;
 const MAX_BET = 1000000;
 
-const validateBetAmount = (amount: number): string | boolean => {
+const validateBetAmount = (amount: number): string => {
   if (amount < MIN_BET) return `minimum bet is ${MIN_BET} Codey coins.`;
   if (amount > MAX_BET) return `maximum bet is ${MAX_BET} Codey coins.`;
-  return true;
+  return '';
 };
 
-class BlackjackCommand extends BaseCommand {
-  constructor(client: CommandoClient) {
-    super(client, {
-      name: 'blackjack',
-      aliases: ['blj', 'bj'],
-      group: 'games',
-      memberName: 'blackjack',
-      description: 'Start a Blackjack game to win some Codey coins!',
-      examples: [`${client.commandPrefix}blackjack 100`, `${client.commandPrefix}blj 100`],
-      args: [
-        {
-          key: 'bet',
-          prompt: `enter the amount you want to bet.`,
-          type: 'integer',
-          default: DEFAULT_BET
-        }
-      ]
-    });
-  }
-
+@ApplyOptions<CommandOptions>({
+  aliases: ['blj', 'bj'],
+  description: 'Start a Blackjack game to win some Codey coins!',
+  detailedDescription: `**Examples:**
+\`${container.botPrefix}blackjack 100\`
+\`${container.botPrefix}blj 100\``,
+})
+// Sapphire Specific:
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+export class GamesBlackjackCommand extends Command {
   /*
     Returns the corresponding emoji given the card's suit
   */
-  getSuitEmoji(suit: string): string {
+  private getSuitEmoji(suit: string): string {
     switch (suit) {
       case CardSuit.SPADES:
         return '♤';
@@ -74,7 +81,11 @@ class BlackjackCommand extends BaseCommand {
     Returns true if the reaction corresponds to a valid action and is from the player
   */
   private reactFilter(reaction: MessageReaction, user: User, authorId: string): boolean {
-    return ['🇸', '🇭', '🇶'].includes(reaction.emoji.name) && user.id === authorId;
+    return (
+      reaction.emoji.name !== null &&
+      ['🇸', '🇭', '🇶'].includes(reaction.emoji.name) &&
+      user.id === authorId
+    );
   }
 
   /*
@@ -84,7 +95,7 @@ class BlackjackCommand extends BaseCommand {
   private async performActionFromReaction(
     collected: Collection<string | Snowflake, MessageReaction>,
     gameMessage: Message,
-    playerId: string
+    playerId: string,
   ): Promise<GameState | null> {
     // Collect the first reaction
     const reaction = collected.first();
@@ -107,17 +118,23 @@ class BlackjackCommand extends BaseCommand {
     Waits for player's reaction and handle any corresponding actions.
   */
   private async handlePlayerAction(gameMessage: Message, playerId: string) {
-    const reactFilter = (reaction: MessageReaction, user: User) => this.reactFilter(reaction, user, playerId);
+    const reactFilter = (reaction: MessageReaction, user: User) =>
+      this.reactFilter(reaction, user, playerId);
     // only waits for 1 valid reaction from the player, with a time limit of 1 minute.
-    const reactCollector = await gameMessage.awaitReactions(reactFilter, { max: 1, time: 60000, errors: ['time'] });
+    const reactCollector = await gameMessage.awaitReactions({
+      filter: reactFilter,
+      max: 1,
+      time: 60000,
+      errors: ['time'],
+    });
     // perform action corresponding to reaction
     return await this.performActionFromReaction(reactCollector, gameMessage, playerId);
   }
 
   /*
-    Returns a colour string depending on the game's state
+    Returns a colour depending on the game's state
   */
-  private getEmbedColourFromGame(game: GameState): string {
+  private getEmbedColourFromGame(game: GameState): ColorResolvable {
     if (game.stage === BlackjackStage.DONE) {
       if (this.getBalanceChange(game) < 0) {
         // player lost coins
@@ -149,18 +166,25 @@ class BlackjackCommand extends BaseCommand {
     if (game.stage === BlackjackStage.DONE) {
       if (game.surrendered) {
         // player surrendered
-        return `You surrendered and lost **${amountDiff}** Codey coin(s) ${getEmojiByName('codeySad')}.`;
+        return `You surrendered and lost **${amountDiff}** Codey ${pluralize(
+          'coin',
+          amountDiff,
+        )} ${getEmojiByName('codeySad')}.`;
       }
       if (game.amountWon < game.bet) {
         // player lost
-        return `You lost **${amountDiff}** Codey coin(s) ${getEmojiByName('codeySad')}, better luck next time!`;
+        return `You lost **${amountDiff}** Codey ${pluralize('coin', amountDiff)} ${getEmojiByName(
+          'codeySad',
+        )}, better luck next time!`;
       }
       if (game.amountWon > game.bet) {
         // player won
-        return `You won **${amountDiff}** Codey coin(s) ${getEmojiByName('codeyLove')}, keep your win streak going!`;
+        return `You won **${amountDiff}** Codey ${pluralize('coin', amountDiff)} ${getEmojiByName(
+          'codeyLove',
+        )}, keep your win streak going!`;
       }
       // player tied with dealer
-      return `Tied! You didn't win nor lose any Codey coin(s), try again!`;
+      return `Tied! You didn't win nor lose any Codey ${pluralize('coin', amountDiff)}, try again!`;
     }
     // game instruction
     return 'Press 🇭 to hit, 🇸 to stand, or 🇶 to quit.';
@@ -173,10 +197,16 @@ class BlackjackCommand extends BaseCommand {
     const embed = new MessageEmbed().setTitle('Blackjack');
     embed.setColor(this.getEmbedColourFromGame(game));
     // show bet amount and game description
-    embed.addField(`Bet: ${game.bet} 🪙`, this.getDescriptionFromGame(game));
+    embed.addField(`Bet: ${game.bet} ${getCoinEmoji()}`, this.getDescriptionFromGame(game));
     // show player and dealer value and hands
-    embed.addField(`Player: ${game.playerValue.join(' or ')}`, this.getHandDisplayString(game.playerCards));
-    embed.addField(`Dealer: ${game.dealerValue.join(' or ')}`, this.getHandDisplayString(game.dealerCards));
+    embed.addField(
+      `Player: ${game.playerValue.join(' or ')}`,
+      this.getHandDisplayString(game.playerCards),
+    );
+    embed.addField(
+      `Dealer: ${game.dealerValue.join(' or ')}`,
+      this.getHandDisplayString(game.dealerCards),
+    );
 
     return embed;
   }
@@ -190,29 +220,37 @@ class BlackjackCommand extends BaseCommand {
     adjustCoinBalanceByUserId(playerId, balanceChange, UserCoinEvent.Blackjack);
   }
 
-  async onRun(message: CommandoMessage, args: { bet: number }): Promise<Message> {
-    const { bet } = args;
+  async messageRun(message: Message, args: Args): Promise<Message> {
+    // if there are no arguments, then resolve to the default bet amount; if there is only one argument and it is an
+    // integer, then this is the bet amount; otherwise, reply that a valid bet amount must be entered
+    const bet = args.finished
+      ? DEFAULT_BET
+      : await args.rest('integer').catch(() => 'please enter a valid bet amount.');
+    if (typeof bet === 'string') return message.reply(bet);
+
     const { author, channel } = message;
 
     const validateRes = validateBetAmount(bet);
-    if (validateRes !== true) {
-      // send error message if validation function doesn't return true
+    if (validateRes) {
+      // if validation function returns an error message, then send it
       return message.reply(validateRes);
     }
 
     // check player balance and see if it can cover the bet amount
     const playerBalance = await getCoinBalanceByUserId(author.id);
-    if (playerBalance < bet)
-      return message.reply(`you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`);
+    if (playerBalance! < bet)
+      return message.reply(
+        `you don't have enough coins to place that bet. ${getEmojiByName('codeySad')}`,
+      );
 
-    // intialize the game
+    // initialize the game
     let game = startGame(bet, author.id, channel.id);
     if (!game) {
       return message.reply('please finish your current game before starting another one!');
     }
 
     // show game initial state and setup reactions
-    const msg = await message.reply(this.getEmbedFromGame(game));
+    const msg = await message.reply({ embeds: [this.getEmbedFromGame(game)] });
     msg.react('🇭');
     msg.react('🇸');
     msg.react('🇶');
@@ -231,11 +269,13 @@ class BlackjackCommand extends BaseCommand {
       if (!game) {
         // no game state is returned from action, either invalid action or non-existent game
         this.endGame(msg, author.id);
-        return message.reply("something went wrong, please try again later! Don't worry, you didn't lose any coins.");
+        return message.reply(
+          "something went wrong, please try again later! Don't worry, you didn't lose any coins.",
+        );
       }
 
       // update game embed
-      await msg.edit(this.getEmbedFromGame(game));
+      await msg.edit({ embeds: [this.getEmbedFromGame(game)] });
     }
 
     // end the game
@@ -243,5 +283,3 @@ class BlackjackCommand extends BaseCommand {
     return msg;
   }
 }
-
-export default BlackjackCommand;

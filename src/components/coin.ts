@@ -1,12 +1,10 @@
-import { Database } from 'sqlite';
 import _ from 'lodash';
-
 import { openDB } from './db';
 
 export enum BonusType {
   Daily = 0,
   Activity,
-  InterviewerList
+  InterviewerList,
 }
 
 export enum UserCoinEvent {
@@ -15,7 +13,10 @@ export enum UserCoinEvent {
   BonusDaily,
   BonusActivity,
   BonusInterviewerList,
-  Blackjack
+  Blackjack,
+  RpsLoss,
+  RpsDrawAgainstCodey,
+  RpsWin,
 }
 
 export type Bonus = {
@@ -37,9 +38,9 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
       type: BonusType.Daily,
       event: UserCoinEvent.BonusDaily,
       amount: 50,
-      cooldown: 86400000, // one day in milliseconds
-      isMessageBonus: true
-    }
+      cooldown: 24 * 60 * 60 * 1000, // one day in milliseconds
+      isMessageBonus: true,
+    },
   ],
   [
     BonusType.Activity,
@@ -47,9 +48,9 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
       type: BonusType.Activity,
       event: UserCoinEvent.BonusActivity,
       amount: 1,
-      cooldown: 60000, // one minute in milliseconds
-      isMessageBonus: true
-    }
+      cooldown: 5 * 60 * 1000, // 5 minutes in milliseconds
+      isMessageBonus: true,
+    },
   ],
   [
     BonusType.InterviewerList,
@@ -58,10 +59,15 @@ export const coinBonusMap = new Map<BonusType, Bonus>([
       event: UserCoinEvent.BonusInterviewerList,
       amount: 10,
       cooldown: null,
-      isMessageBonus: false
-    }
-  ]
+      isMessageBonus: false,
+    },
+  ],
 ]);
+
+export interface UserCoinEntry {
+  user_id: string;
+  balance: number;
+}
 
 export interface UserCoinBonus {
   id: string;
@@ -69,48 +75,6 @@ export interface UserCoinBonus {
   bonus_type: number;
   last_granted: Date;
 }
-
-export const initUserCoinTable = async (db: Database): Promise<void> => {
-  await db.run(
-    `
-    CREATE TABLE IF NOT EXISTS user_coin (
-      user_id VARCHAR(255) PRIMARY KEY NOT NULL,
-      balance INTEGER NOT NULL CHECK(balance>=0)
-    );
-    `
-  );
-};
-
-export const initUserCoinBonusTable = async (db: Database): Promise<void> => {
-  await db.run(
-    `
-    CREATE TABLE IF NOT EXISTS user_coin_bonus (
-      user_id VARCHAR(255) NOT NULL,
-      bonus_type INTEGER NOT NULL,
-      last_granted TIMESTAMP NOT NULL,
-      PRIMARY KEY (user_id, bonus_type)
-    );
-    `
-  );
-};
-
-export const initUserCoinLedgerTable = async (db: Database): Promise<void> => {
-  await db.run(
-    `
-    CREATE TABLE IF NOT EXISTS user_coin_ledger (
-      id INTEGER PRIMARY KEY NOT NULL,
-      user_id VARCHAR(255) NOT NULL,
-      amount INTEGER NOT NULL,
-      new_balance INTEGER NOT NULL,
-      event INTEGER NOT NULL,
-      reason VARCHAR(255),
-      admin_id VARCHAR(255),
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-    `
-  );
-  await db.run('CREATE INDEX IF NOT EXISTS ix_user_coin_ledger_user_id ON user_coin_ledger (user_id)');
-};
 
 export const getCoinBalanceByUserId = async (userId: string): Promise<number> => {
   const db = await openDB();
@@ -130,11 +94,11 @@ export const updateCoinBalanceByUserId = async (
   newBalance: number,
   event: UserCoinEvent,
   reason: string | null = null,
-  adminId: string | null = null
+  adminId: string | null = null,
 ): Promise<void> => {
   const oldBalance = await getCoinBalanceByUserId(userId);
   const actualNewBalance = Math.max(newBalance, 0);
-  await changeDbCoinBalanceByUserId(userId, oldBalance, actualNewBalance, event, reason, adminId);
+  await changeDbCoinBalanceByUserId(userId, oldBalance!, actualNewBalance, event, reason, adminId);
 };
 
 /*
@@ -147,11 +111,11 @@ export const adjustCoinBalanceByUserId = async (
   amount: number,
   event: UserCoinEvent,
   reason: string | null = null,
-  adminId: string | null = null
+  adminId: string | null = null,
 ): Promise<void> => {
   const oldBalance = await getCoinBalanceByUserId(userId);
-  const newBalance = Math.max(oldBalance + amount, 0);
-  await changeDbCoinBalanceByUserId(userId, oldBalance, newBalance, event, reason, adminId);
+  const newBalance = Math.max(oldBalance! + amount, 0);
+  await changeDbCoinBalanceByUserId(userId, oldBalance!, newBalance, event, reason, adminId);
 };
 
 /*
@@ -164,19 +128,37 @@ export const changeDbCoinBalanceByUserId = async (
   newBalance: number,
   event: UserCoinEvent,
   reason: string | null,
-  adminId: string | null
+  adminId: string | null,
 ): Promise<void> => {
   const db = await openDB();
   await db.run(
     `
-    INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
-    ON CONFLICT(user_id)
-    DO UPDATE SET balance = ?`,
+      INSERT INTO user_coin (user_id, balance) VALUES (?, ?)
+      ON CONFLICT(user_id)
+      DO UPDATE SET balance = ?`,
     userId,
     newBalance,
-    newBalance
+    newBalance,
   );
   await createCoinLedgerEntry(userId, oldBalance, newBalance, event, reason, adminId);
+};
+
+/*
+  Get the leaderboard for the current coin amounts.
+*/
+export const getCoinLeaderboard = async (limit: number, offset = 0): Promise<UserCoinEntry[]> => {
+  const db = await openDB();
+  const res = await db.all(
+    `
+      SELECT user_id, balance
+      FROM user_coin
+      ORDER BY balance DESC
+      LIMIT ? OFFSET ?
+    `,
+    limit,
+    offset,
+  );
+  return res;
 };
 
 /*
@@ -190,7 +172,7 @@ export const createCoinLedgerEntry = async (
   newBalance: number,
   event: UserCoinEvent,
   reason: string | null,
-  adminId: string | null
+  adminId: string | null,
 ): Promise<void> => {
   const db = await openDB();
   await db.run(
@@ -200,7 +182,7 @@ export const createCoinLedgerEntry = async (
     newBalance,
     event,
     reason,
-    adminId
+    adminId,
   );
 };
 
@@ -208,27 +190,33 @@ export const createCoinLedgerEntry = async (
   If (user, bonusType) doesn't exist, create row with current time as this bonusType log.
   Otherwise, update last_granted to CURRENT_TIMESTAMP.
 */
-export const updateUserBonusTableByUserId = async (userId: string, bonusType: BonusType): Promise<void> => {
+export const updateUserBonusTableByUserId = async (
+  userId: string,
+  bonusType: BonusType,
+): Promise<void> => {
   const db = await openDB();
   await db.run(
     `
-    INSERT INTO user_coin_bonus (user_id, bonus_type, last_granted) VALUES (?, ?, CURRENT_TIMESTAMP)
-    ON CONFLICT(user_id, bonus_type)
-    DO UPDATE SET last_granted = CURRENT_TIMESTAMP`,
+      INSERT INTO user_coin_bonus (user_id, bonus_type, last_granted) VALUES (?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(user_id, bonus_type)
+      DO UPDATE SET last_granted = CURRENT_TIMESTAMP`,
     userId,
-    bonusType
+    bonusType,
   );
 };
 
 /*
   Get the time of the latest bonus applied to a user based on type
 */
-export const latestBonusByUserId = async (userId: string, type: BonusType): Promise<UserCoinBonus | undefined> => {
+export const latestBonusByUserId = async (
+  userId: string,
+  type: BonusType,
+): Promise<UserCoinBonus | undefined> => {
   const db = await openDB();
   const res: UserCoinBonus | undefined = await db.get(
     `SELECT last_granted FROM user_coin_bonus WHERE user_id = ? AND bonus_type = ?`,
     userId,
-    type
+    type,
   );
   return res;
 };
@@ -244,17 +232,20 @@ export const applyTimeBonus = async (userId: string, bonusType: BonusType): Prom
     return false; // type does not exist
   }
 
-  const lastBonusOccurence = await latestBonusByUserId(userId, bonusOfInterest.type);
+  const lastBonusOccurrence = await latestBonusByUserId(userId, bonusOfInterest.type);
   const nowTime = new Date().getTime();
   if (bonusOfInterest.cooldown === null) {
     throw 'Bonus does not have cooldown';
   }
   const cooldown = nowTime - bonusOfInterest.cooldown;
-  // lastBonusOccurenceTime either does not exist yet (set as -1), or is pulled from db
-  const lastBonusOccurenceTime = !lastBonusOccurence ? -1 : new Date(lastBonusOccurence['last_granted']).getTime();
+  // lastBonusOccurrenceTime either does not exist yet (set as -1), or is pulled from db
+  const lastBonusOccurrenceTime = !lastBonusOccurrence
+    ? -1
+    : new Date(lastBonusOccurrence['last_granted']).getTime() -
+      new Date(lastBonusOccurrence['last_granted']).getTimezoneOffset() * 60 * 1000; // convert minutes to milliseconds
 
   // TODO wrap operations in transaction
-  if (!lastBonusOccurence || lastBonusOccurenceTime < cooldown) {
+  if (!lastBonusOccurrence || lastBonusOccurrenceTime < cooldown) {
     await adjustCoinBalanceByUserId(userId, bonusOfInterest.amount, bonusOfInterest.event);
     await updateUserBonusTableByUserId(userId, bonusType);
     return true; // bonus type is applied
