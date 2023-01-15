@@ -2,7 +2,7 @@ import { Command } from "@sapphire/framework";
 import { CodeyCommand } from "../../codeyCommand";
 import { extendTimerCommandDetails } from "../../commandDetails/bootcamp/extendTimer";
 
-export class MiscellaneousInfoCommand extends CodeyCommand {
+export class ExtendTimerCommand extends CodeyCommand {
   details = extendTimerCommandDetails;
 
   public constructor(context: Command.Context, options: Command.Options) {
