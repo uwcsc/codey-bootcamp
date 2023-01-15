@@ -15,6 +15,7 @@ import { initMessageCreate } from "./events/messageCreate";
 import { initReady } from "./events/ready";
 import { logger } from "./logger/default";
 import { validateEnvironmentVariables } from "./validateEnvVars";
+import { initBootcamp } from "./components/bootcamp";
 
 // Set default inspection depth
 inspect.defaultOptions.depth = 3;
@@ -52,6 +53,8 @@ export const startBot = async (): Promise<void> => {
     logger.info({
       event: "init",
     });
+    initBootcamp(client);
+    
     client.on("error", client.logger.error);
     // Use this on the discord.js client after sapphire
     // client.on('error', logger.error);
