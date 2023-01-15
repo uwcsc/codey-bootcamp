@@ -1,11 +1,16 @@
-import { CategoryChannel, GuildMember, Permissions, VoiceChannel } from "discord.js";
+import {
+  CategoryChannel,
+  GuildMember,
+  Permissions,
+  VoiceChannel,
+} from "discord.js";
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from "../../codeyCommand";
-import { lowestInt } from "../../commands/bootcamp/utils";
+import { lowestInt } from "../../utils/bootcamp";
 import { BootcampSettings } from "../../components/bootcamp";
 
 const selectTrackExecuteCommand: SapphireMessageExecuteType = async (
@@ -77,9 +82,8 @@ const selectTrackExecuteCommand: SapphireMessageExecuteType = async (
     }
 
     return "You joined the " + category + " track.";
-  } 
-  else {
-    return "That category does not exist. Check the waiting rooms for the current categories."
+  } else {
+    return "That category does not exist. Check the waiting rooms for the current categories.";
   }
 };
 

@@ -5,7 +5,7 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from "../../codeyCommand";
-import { toTitleCase } from "../../commands/bootcamp/utils";
+import { toTitleCase } from "../../utils/bootcamp";
 
 const newTrackExecuteCommand: SapphireMessageExecuteType = async (
   _client,
@@ -19,7 +19,7 @@ const newTrackExecuteCommand: SapphireMessageExecuteType = async (
   ) {
     return `You do not have permission to use this command.`;
   }
-  
+
   let { category } = args;
 
   category = toTitleCase(<string>category);
@@ -28,7 +28,8 @@ const newTrackExecuteCommand: SapphireMessageExecuteType = async (
   const waitingRooms = <CategoryChannel>(
     guild.channels.cache.find(
       (channel) =>
-        channel.name.startsWith("Waiting Room") && channel.type === "GUILD_CATEGORY"
+        channel.name.startsWith("Waiting Room") &&
+        channel.type === "GUILD_CATEGORY"
     )
   );
 
@@ -41,7 +42,8 @@ const newTrackExecuteCommand: SapphireMessageExecuteType = async (
 
   const trackCategory = <CategoryChannel>(
     guild.channels.cache.find(
-      (channel) => channel.name === category && channel.type === "GUILD_CATEGORY"
+      (channel) =>
+        channel.name === category && channel.type === "GUILD_CATEGORY"
     )
   );
 
@@ -62,7 +64,8 @@ const newTrackExecuteCommand: SapphireMessageExecuteType = async (
       .then((newCategory) => {
         guild.channels
           .create(
-            (<string>category)?.replace(/ +/g, "-").toLocaleLowerCase() + "-queue",
+            (<string>category)?.replace(/ +/g, "-").toLocaleLowerCase() +
+              "-queue",
             {
               parent: newCategory,
               permissionOverwrites: [

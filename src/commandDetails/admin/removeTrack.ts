@@ -5,7 +5,7 @@ import {
   SapphireMessageExecuteType,
   SapphireMessageResponse,
 } from "../../codeyCommand";
-import { toTitleCase } from "../../commands/bootcamp/utils";
+import { toTitleCase } from "../../utils/bootcamp";
 
 const removeTrackExecuteCommand: SapphireMessageExecuteType = async (
   _client,
@@ -19,14 +19,15 @@ const removeTrackExecuteCommand: SapphireMessageExecuteType = async (
   ) {
     return `You do not have permission to use this command.`;
   }
-  
+
   let category = args["category"] as string;
 
   category = toTitleCase(category);
   const guild = messageFromUser.guild!;
   const trackCategory = <CategoryChannel>(
     guild.channels.cache.find(
-      (channel) => channel.name === category && channel.type === "GUILD_CATEGORY"
+      (channel) =>
+        channel.name === category && channel.type === "GUILD_CATEGORY"
     )
   );
   const trackWait = <VoiceChannel>(
@@ -37,7 +38,8 @@ const removeTrackExecuteCommand: SapphireMessageExecuteType = async (
   const waitingRooms = <CategoryChannel>(
     guild.channels.cache.find(
       (channel) =>
-        channel.name.startsWith("Waiting Room") && channel.type === "GUILD_CATEGORY"
+        channel.name.startsWith("Waiting Room") &&
+        channel.type === "GUILD_CATEGORY"
     )
   );
 
@@ -54,8 +56,7 @@ const removeTrackExecuteCommand: SapphireMessageExecuteType = async (
     });
 
     return `Deleted '${category}' track.`;
-  } 
-  else {
+  } else {
     return `There is no '${category}' track.`;
   }
 };
