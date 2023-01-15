@@ -76,7 +76,7 @@ const newTrackExecuteCommand: SapphireMessageExecuteType = async (
 export const newTrackCommandDetails: CodeyCommandDetails = {
   name: "new-track",
   aliases: ["add-track"],
-  description: "View the feedback DM sent to mentees",
+  description: "Add a new track.",
   detailedDescription: "",
 
   isCommandResponseEphemeral: false,
