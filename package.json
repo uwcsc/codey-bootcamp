@@ -6,12 +6,12 @@
   "scripts": {
     "local:run": "mkdir -p tmp && NODE_ENV=dev tsc-watch --onSuccess \"node dist/index.js\"",
     "ts:build": "tsc",
-    "image:build": "docker build . -t codey",
+    "image:build": "docker build . -t codey-bootcamp",
     "clean": "docker-compose down",
     "stop": "docker-compose stop",
     "start": "docker-compose up -d",
     "restart": "docker-compose restart",
-    "logs": "docker logs -f codey-bot",
+    "logs": "docker logs -f codey-bootcamp",
     "lint": "eslint . --fix --max-warnings 0",
     "format": "prettier --write src",
     "test": "echo \"Error: no test specified\" && exit 1"
