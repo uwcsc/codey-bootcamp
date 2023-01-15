@@ -1,7 +1,7 @@
 services:
   codey-bot:
-    image: codey:latest
-    container_name: codey-bot
+    image: codey-bootcamp:latest
+    container_name: codey-bootcamp
     env_file:
       - .env
     environment:

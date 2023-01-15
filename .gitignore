@@ -6,3 +6,6 @@
 /db/*
 !/db/.gitkeep
 **/.DS_Store
+
+./src/commands/bootcamp
+/config/dev/vars.json

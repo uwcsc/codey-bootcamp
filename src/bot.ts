@@ -1,93 +1,78 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
-import { TextChannel } from 'discord.js';
-import yaml from 'js-yaml';
-import fs from 'fs';
-import Commando, { CommandoGuild } from 'discord.js-commando';
-import path from 'path';
+import {
+  container,
+  LogLevel,
+  SapphireClient,
+  SapphirePrefix,
+} from "@sapphire/framework";
+import "@sapphire/plugin-logger/register";
+import * as colorette from "colorette";
+import { Message } from "discord.js";
+import { inspect } from "util";
+import { initMessageCreate } from "./events/messageCreate";
+import { initReady } from "./events/ready";
+import { logger } from "./logger/default";
+import { validateEnvironmentVariables } from "./validateEnvVars";
+import { initBootcamp } from "./components/bootcamp";
 
-import { openCommandoDB } from './components/db';
-import logger, { logError } from './components/logger';
-import onMessage from './events/message';
-import onGuildMemberAdd from './events/guildMemberAdd';
-import onVoiceStateUpdate from './events/voiceStateUpdate';
-import { initEmojis } from './components/emojis';
-import { initBootcamp } from './components/bootcamp';
-import { createSuggestionCron, waitingRoomsInfo, mentorCallTimer } from './components/cron';
+// Set default inspection depth
+inspect.defaultOptions.depth = 3;
 
-const NOTIF_CHANNEL_ID: string = process.env.NOTIF_CHANNEL_ID || '.';
-const BOOTCAMP_GUILD_ID: string = process.env.BOOTCAMP_GUILD_ID || '.';
-const BOT_TOKEN: string = process.env.BOT_TOKEN || '.';
-const BOT_PREFIX = '.';
+// Enable colorette
+colorette.createColors({ useColor: true });
 
-// initialize Commando client
-const botOwners = yaml.load(fs.readFileSync('config/owners.yml', 'utf8')) as string[];
-export const client = new Commando.Client({
-  owner: botOwners,
-  commandPrefix: BOT_PREFIX,
-  restTimeOffset: 0
+const client = new SapphireClient({
+  defaultPrefix: ".",
+  caseInsensitiveCommands: true,
+  loadMessageCommandListeners: true,
+  logger: {
+    level: LogLevel.Debug,
+  },
+  shards: "auto",
+  intents: [
+    "GUILDS",
+    "GUILD_MEMBERS",
+    "GUILD_BANS",
+    "GUILD_EMOJIS_AND_STICKERS",
+    "GUILD_VOICE_STATES",
+    "GUILD_MESSAGES",
+    "GUILD_MESSAGE_REACTIONS",
+    "DIRECT_MESSAGES",
+    "DIRECT_MESSAGE_REACTIONS",
+  ],
+  partials: ["CHANNEL", "GUILD_MEMBER", "MESSAGE", "REACTION", "USER"],
 });
 
-// register command groups
-
-client.registry
-  .registerDefaultTypes()
-  .registerDefaultGroups()
-  .registerDefaultCommands({ unknownCommand: false })
-  .registerGroups([
-    ['suggestions', 'Suggestions'],
-    ['interviews', 'Mock Interviews'],
-    ['bootcamp', 'Drop-in Mentorship Event'],
-    ['coin', 'Codey Coin'],
-    ['fun', 'Fun'],
-    ['games', 'Games']
-  ])
-  .registerCommandsIn(path.join(__dirname, 'commands'));
-// set DB provider for persisting bot config
-client.setProvider(openCommandoDB().then((db) => new Commando.SQLiteProvider(db))).catch(console.error);
+container.botPrefix = client.options.defaultPrefix!;
 
 export const startBot = async (): Promise<void> => {
-  client.once('ready', async () => {
-    // log bot init event and send system notification
+  try {
+    validateEnvironmentVariables();
     logger.info({
-      event: 'init'
+      event: "init",
     });
-
-    const notif = (await client.channels.fetch(NOTIF_CHANNEL_ID)) as TextChannel;
-
-    initEmojis(client);
-    createSuggestionCron(client).start();
-
-    // Intialize Bootcamp features if the event server exists
-    const nonBootcampServers = client.guilds.cache.filter((guild) => guild.id !== BOOTCAMP_GUILD_ID);
-    nonBootcampServers.forEach((guild) => {
-      const commandoGuild = <CommandoGuild>guild;
-      commandoGuild.setGroupEnabled('bootcamp', false);
+    initBootcamp(client);
+    
+    client.on("error", client.logger.error);
+    // Use this on the discord.js client after sapphire
+    // client.on('error', logger.error);
+    client.on("ready", initReady);
+    client.on("messageCreate", (message: Message) => {
+      initMessageCreate(client, logger, message);
     });
-    let bootcamp;
-    try {
-      bootcamp = await client.guilds.fetch(BOOTCAMP_GUILD_ID);
-    } catch (error) {
-      console.log('No bootcamp server.');
-    }
-    if (bootcamp) {
-      client?.user?.setActivity('Bootcamp!', { type: 'WATCHING' });
-      initBootcamp(client);
-      waitingRoomsInfo(client).start();
-      mentorCallTimer(client).start();
-    }
-
-    notif.send('Codey is up!');
-  });
-
-  client.on('error', logError);
-
-  client.login(BOT_TOKEN);
-
-  client.on('message', onMessage);
-
-  client.on('guildMemberAdd', onGuildMemberAdd);
-
-  client.on('voiceStateUpdate', onVoiceStateUpdate);
+    client.login();
+  } catch (e: unknown) {
+    logger.error(
+      `Uh oh, something went wrong when initializing the bot!\n${e}`
+    );
+  }
 };
+
+// Augment Container to have the botPrefix property, since container.botPrefix is shorter than container.client.options.defaultPrefix
+declare module "@sapphire/pieces" {
+  interface Container {
+    botPrefix: SapphirePrefix;
+  }
+}
