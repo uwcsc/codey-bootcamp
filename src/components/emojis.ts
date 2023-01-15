@@ -11,9 +11,3 @@ export const initEmojis = (client: Client): void => {
 export const getEmojiByName = (name: string): Emoji | undefined => {
   return emojiList[name];
 };
-
-export const getCoinEmoji = (): Emoji | string => {
-  let emoji: Emoji | string = emojiList['codeyCoin'];
-  if (emoji === undefined) emoji = '🪙';
-  return emoji;
-};
