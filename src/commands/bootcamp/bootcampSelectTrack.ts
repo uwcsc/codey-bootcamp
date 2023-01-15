@@ -1,6 +1,6 @@
 import { Command } from "@sapphire/framework";
 import { CodeyCommand } from "../../codeyCommand";
-import { selectTrackCommandDetails } from "../../commandDetails/bootcamp/selectTrack";
+import { selectTrackCommandDetails } from "../../commandDetails/mentee/selectTrack";
 
 export class SelectTrackMessageCommand extends CodeyCommand {
   details = selectTrackCommandDetails;

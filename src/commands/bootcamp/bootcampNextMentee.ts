@@ -1,6 +1,6 @@
 import { Command } from "@sapphire/framework";
 import { CodeyCommand } from "../../codeyCommand";
-import { nextMenteeCommandDetails } from "../../commandDetails/bootcamp/nextMentee";
+import { nextMenteeCommandDetails } from "../../commandDetails/mentor/nextMentee";
 
 export class NextMenteeMessageCommand extends CodeyCommand {
   details = nextMenteeCommandDetails;

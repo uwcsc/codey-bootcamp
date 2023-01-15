@@ -12,6 +12,14 @@ const newTrackExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args
 ): Promise<SapphireMessageResponse> => {
+  if (
+    !(<Readonly<Permissions>>messageFromUser.member?.permissions).has(
+      "ADMINISTRATOR"
+    )
+  ) {
+    return `You do not have permission to use this command.`;
+  }
+  
   let { category } = args;
 
   category = toTitleCase(<string>category);

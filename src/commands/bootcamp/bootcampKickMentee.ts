@@ -1,6 +1,6 @@
 import { Command } from "@sapphire/framework";
 import { CodeyCommand } from "../../codeyCommand";
-import { kickMenteeCommandDetails } from "../../commandDetails/bootcamp/kickMentee";
+import { kickMenteeCommandDetails } from "../../commandDetails/mentor/kickMentee";
 
 export class ExtendTimerCommand extends CodeyCommand {
   details = kickMenteeCommandDetails;

@@ -1,6 +1,6 @@
 import { Command } from "@sapphire/framework";
 import { CodeyCommand } from "../../codeyCommand";
-import { removeTrackCommandDetails } from "../../commandDetails/bootcamp/removeTrack";
+import { removeTrackCommandDetails } from "../../commandDetails/admin/removeTrack";
 
 export class RemoveTrackMessageCommand extends CodeyCommand {
   details = removeTrackCommandDetails;

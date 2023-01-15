@@ -1,4 +1,4 @@
-import { CategoryChannel, VoiceChannel } from "discord.js";
+import { CategoryChannel, Permissions, VoiceChannel } from "discord.js";
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -12,6 +12,14 @@ const removeTrackExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args
 ): Promise<SapphireMessageResponse> => {
+  if (
+    !(<Readonly<Permissions>>messageFromUser.member?.permissions).has(
+      "ADMINISTRATOR"
+    )
+  ) {
+    return `You do not have permission to use this command.`;
+  }
+  
   let category = args["category"] as string;
 
   category = toTitleCase(category);

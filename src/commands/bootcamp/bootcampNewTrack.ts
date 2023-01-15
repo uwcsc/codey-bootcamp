@@ -1,6 +1,6 @@
 import { Command } from "@sapphire/framework";
 import { CodeyCommand } from "../../codeyCommand";
-import { newTrackCommandDetails } from "../../commandDetails/bootcamp/newTrack";
+import { newTrackCommandDetails } from "../../commandDetails/admin/newTrack";
 
 export class NewTrackMessageCommand extends CodeyCommand {
   details = newTrackCommandDetails;
