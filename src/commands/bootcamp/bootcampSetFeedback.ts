@@ -1,6 +1,6 @@
 import { Command } from "@sapphire/framework";
 import { CodeyCommand } from "../../codeyCommand";
-import { setFeedbackCommandDetails } from "../../commandDetails/bootcamp/setFeedbackMessage";
+import { setFeedbackCommandDetails } from "../../commandDetails/bootcamp/setFeedback";
 
 export class SetFeedbackMessageCommand extends CodeyCommand {
   details = setFeedbackCommandDetails;

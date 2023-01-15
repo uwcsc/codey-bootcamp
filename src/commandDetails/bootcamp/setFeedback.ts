@@ -1,5 +1,3 @@
-import { container } from "@sapphire/framework";
-import { Message } from "discord.js";
 import {
   CodeyCommandDetails,
   CodeyCommandOptionType,
@@ -9,24 +7,21 @@ import {
 
 import { BootcampSettings } from "../../components/bootcamp";
 
-/*
-  Arguments:
-  - addTime: the time to extend the duration of the call by.
-*/
 const setFeedbackExecuteCommand: SapphireMessageExecuteType = async (
   _client,
-  messageFromUser,
+  _messageFromUser,
   args
 ): Promise<SapphireMessageResponse> => {
   const { feedback } = args;
 
   BootcampSettings.set("feedback_dm", feedback);
   
-  const messageString = ```
+  const messageString = `
     Feedback successfully set! The feedback direct message for mentees will now look like this:
 
     ${feedback}
-  ```
+  `;
+
   return messageString;
 };
 

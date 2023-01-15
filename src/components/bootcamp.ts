@@ -7,6 +7,7 @@ import {
   GuildChannel,
   VoiceState,
   GuildBasedChannel,
+  User,
 } from "discord.js";
 import { getEmojiByName } from "../components/emojis";
 import { vars } from "../config";
@@ -151,3 +152,11 @@ export const controlMentorMenteeCalls = async (
     }
   }
 };
+
+/*
+  Make bootcamp feedback message.
+*/
+export const makeFeedbackMessage = (user: User): string => {
+  const feedback: string = BootcampSettings.get('feedback_dm');
+  return feedback.replace("[user]", `<@${user.id}>`);
+}
