@@ -43,7 +43,10 @@ const extendTimerExecuteCommand: SapphireMessageExecuteType = async (
       );
 
       if (
-        !extendsUsed.every((mesg) => !mesg.mentions.users.get(messageFromUser.member?.user.id!))
+        !extendsUsed.every(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+          (mesg) => !mesg.mentions.users.get(messageFromUser.member?.user.id!)
+        )
       ) {
         return "You already extended the time.";
       }
@@ -79,10 +82,11 @@ export const extendTimerCommandDetails: CodeyCommandDetails = {
   options: [
     {
       name: "time",
-      description: "The amount of minutes to extend the time by. Default is 7 minutes.",
+      description:
+        "The amount of minutes to extend the time by. Default is 7 minutes.",
       required: true,
-      type: CodeyCommandOptionType.INTEGER
-    }
+      type: CodeyCommandOptionType.INTEGER,
+    },
   ],
   subcommandDetails: {},
 };

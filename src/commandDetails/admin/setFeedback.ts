@@ -15,7 +15,7 @@ const setFeedbackExecuteCommand: SapphireMessageExecuteType = async (
   const { feedback } = args;
 
   BootcampSettings.set("feedback_dm", feedback);
-  
+
   const messageString = `
     Feedback successfully set! The feedback direct message for mentees will now look like this:
 
@@ -28,7 +28,8 @@ const setFeedbackExecuteCommand: SapphireMessageExecuteType = async (
 export const setFeedbackCommandDetails: CodeyCommandDetails = {
   name: "set-feedback",
   aliases: [],
-  description: "Sets the feedback message for mentees. Use [user] as a placeholder for the mentee's username.",
+  description:
+    "Sets the feedback message for mentees. Use [user] as a placeholder for the mentee's username.",
   detailedDescription: "",
 
   isCommandResponseEphemeral: false,
@@ -39,7 +40,7 @@ export const setFeedbackCommandDetails: CodeyCommandDetails = {
       description: "The new feedback dm message.",
       required: true,
       type: CodeyCommandOptionType.STRING,
-    }
+    },
   ],
   subcommandDetails: {},
 };

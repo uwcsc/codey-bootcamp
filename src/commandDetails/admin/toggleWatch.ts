@@ -1,4 +1,9 @@
-import { GuildMember, Permissions, TextChannel, VoiceChannel } from "discord.js";
+import {
+  GuildMember,
+  Permissions,
+  TextChannel,
+  VoiceChannel,
+} from "discord.js";
 import {
   CodeyCommandDetails,
   SapphireMessageExecuteType,
@@ -18,15 +23,15 @@ const toggleWatchExecuteCommand: SapphireMessageExecuteType = async (
   ) {
     return `You do not have permission to use this command.`;
   }
-  
+
   const updateWaiting = await BootcampSettings.get("update_waiting_times");
-    if (updateWaiting) {
-      BootcampSettings.set("update_waiting_times", !updateWaiting);
-      return "The waiting room info will **stop** updating!";
-    } else {
-      BootcampSettings.set("update_waiting_times", true);
-      return "The waiting room info will **start** updating!";
-    }
+  if (updateWaiting) {
+    BootcampSettings.set("update_waiting_times", !updateWaiting);
+    return "The waiting room info will **stop** updating!";
+  } else {
+    BootcampSettings.set("update_waiting_times", true);
+    return "The waiting room info will **start** updating!";
+  }
 };
 
 export const toggleWatchCommandDetails: CodeyCommandDetails = {

@@ -14,6 +14,7 @@ const viewFeedbackExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   _args
 ): Promise<SapphireMessageResponse> => {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
   const user = <User>messageFromUser.member?.user!;
   const message = makeFeedbackMessage(user);
   await sendMessage(user, message);

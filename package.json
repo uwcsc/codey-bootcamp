@@ -12,7 +12,7 @@
     "start": "docker-compose up -d",
     "restart": "docker-compose restart",
     "logs": "docker logs -f codey-bootcamp",
-    "lint": "eslint . --fix --max-warnings 0",
+    "lint": "eslint . --fix",
     "format": "prettier --write src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

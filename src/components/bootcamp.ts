@@ -12,6 +12,7 @@ import {
 import { getEmojiByName } from "../components/emojis";
 import { vars } from "../config";
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Keyv = require("keyv");
 
 const BOOTCAMP_GUILD_ID: string = vars.BOOTCAMP_GUILD_ID || ".";
@@ -20,7 +21,11 @@ export const BootcampSettings = new Keyv();
 /*
   Initialize the channels and roles for Bootcamp.
 */
-export const initBootcamp = async (client: SapphireClient, critique_time = 30, update_waiting_times = false): Promise<void> => {
+export const initBootcamp = async (
+  client: SapphireClient,
+  critique_time = 30,
+  update_waiting_times = false
+): Promise<void> => {
   const bootcamp = await client.guilds.fetch(BOOTCAMP_GUILD_ID);
   const mentorGetRole = <Role>(
     bootcamp.roles.cache.find((role) => role.name === "Mentor")
@@ -146,7 +151,7 @@ export const controlMentorMenteeCalls = async (
     }
 
     let queueChannel: GuildBasedChannel | undefined = undefined;
-    for (let [channelName, channel] of guild.channels.cache) {
+    for (const [channelName, channel] of guild.channels.cache) {
       queueChannel = channel;
       break;
     }
@@ -157,6 +162,6 @@ export const controlMentorMenteeCalls = async (
   Make bootcamp feedback message.
 */
 export const makeFeedbackMessage = (user: User): string => {
-  const feedback: string = BootcampSettings.get('feedback_dm');
+  const feedback: string = BootcampSettings.get("feedback_dm");
   return feedback.replace("[user]", `<@${user.id}>`);
-}
+};

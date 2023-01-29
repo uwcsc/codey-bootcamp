@@ -43,10 +43,11 @@ const nextMenteeExecuteCommand: SapphireMessageExecuteType = async (
     const queueMessages = await queueChannel.messages.fetch({
       limit: queueVoice.members.size * 2 + 5,
     });
-    const sortedQueueMessages = queueMessages
-      .sorted((mesgA, mesgB) => mesgA.createdTimestamp - mesgB.createdTimestamp);
+    const sortedQueueMessages = queueMessages.sorted(
+      (mesgA, mesgB) => mesgA.createdTimestamp - mesgB.createdTimestamp
+    );
 
-    for (let [_str, message] of sortedQueueMessages) {
+    for (const [_str, message] of sortedQueueMessages) {
       front = queueMembers.get(message.content);
       if (front) {
         const mentorCall = <VoiceChannel>mentor?.channel;
@@ -73,9 +74,8 @@ const nextMenteeExecuteCommand: SapphireMessageExecuteType = async (
       }
     }
     const critiqueTime = (await BootcampSettings?.get("critique_time")) || 30;
-    return 
-      "Your **" + critiqueTime + "** minute call has started!"
-    ;
+    return;
+    "Your **" + critiqueTime + "** minute call has started!";
   } else {
     return "You must be in a Mentor/Mentee call room.";
   }

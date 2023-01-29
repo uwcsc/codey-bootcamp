@@ -22,7 +22,7 @@ const kickMenteeExecuteCommand: SapphireMessageExecuteType = async (
   );
   const queueChannel = <TextChannel>(
     callChannel?.parent?.children.find(
-      (channel: { name: string; }) =>
+      (channel: { name: string }) =>
         channel.name ===
         track?.replace(/ +/g, "-").toLocaleLowerCase() + "-queue"
     )
@@ -34,8 +34,8 @@ const kickMenteeExecuteCommand: SapphireMessageExecuteType = async (
       return "You are already alone in this call.";
     }
     callMembers
-      ?.filter((member: { id: any; }) => member.id != mentor?.id)
-      .forEach((member: { voice: { setChannel: (arg0: null) => void; }; }) => {
+      ?.filter((member: { id: any }) => member.id != mentor?.id)
+      .forEach((member: { voice: { setChannel: (arg0: null) => void } }) => {
         member.voice.setChannel(null);
       });
     return "Your call is now cleared.";

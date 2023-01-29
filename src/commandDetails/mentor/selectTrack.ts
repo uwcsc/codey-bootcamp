@@ -18,7 +18,7 @@ const selectTrackExecuteCommand: SapphireMessageExecuteType = async (
   messageFromUser,
   args
 ): Promise<SapphireMessageResponse> => {
-  let category = args["category"] as string;
+  const category = args["category"] as string;
   const mentor = (<GuildMember>messageFromUser.member)?.voice;
 
   if (!mentor?.channel) {
