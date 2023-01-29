@@ -74,11 +74,11 @@ jobs:
       - name: Pull image and start container in deploy host
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ env.DEPLOY_HOST }}
+          host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          proxy_host: ${{ env.DEPLOY_PROXY_HOST }}
-          proxy_username: ${{ env.DEPLOY_PROXY_USER }}
+          proxy_host: ${{ secrets.DEPLOY_PROXY_HOST }}
+          proxy_username: ${{ secrets.DEPLOY_PROXY_USER }}
           proxy_key: ${{ secrets.DEPLOY_PROXY_KEY }}
           script: |
             cd /codey/bootcamp
