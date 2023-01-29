@@ -81,9 +81,10 @@ jobs:
           proxy_username: ${{ secrets.DEPLOY_PROXY_USER }}
           proxy_key: ${{ secrets.DEPLOY_PROXY_KEY }}
           script: |
-            cd /codey/bootcamp
+            cd ~/codey/bootcamp
             curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codey-bootcamp/main/docker/production/docker-compose.yml
             docker pull uwcsclub/codey-bootcamp:${{ github.sha }}
-            echo "TAG=${{ github.sha }}" > .env
+            echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" > .env
+            echo "TAG=${{ github.sha }}" >> .env
             docker compose down
             docker compose up -d
