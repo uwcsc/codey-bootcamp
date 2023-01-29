@@ -77,8 +77,9 @@ jobs:
           host: ${{ env.DEPLOYMENT_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          proxy_host: ${{ env.DEPLOYMENT_PROXY_HOST }}
-          proxy_key: ${{ secrets.DEPLOYMENT_PROXY_KEY }}
+          proxy_host: ${{ env.DEPLOY_PROXY_HOST }}
+          proxy_username: ${{ env.DEPLOY_PROXY_USER }}
+          proxy_key: ${{ secrets.DEPLOY_PROXY_KEY }}
           script: |
             cd /codey/bootcamp
             curl -o docker-compose.yml https://raw.githubusercontent.com/uwcsc/codey-bootcamp/main/docker/production/docker-compose.yml
