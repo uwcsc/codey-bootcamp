@@ -46,7 +46,7 @@ jobs:
       # set target deployment to prod on push
       - name: Configuration for production deployment
         run: |
-          echo "DEPLOYMENT_TARGET=staging" >> $GITHUB_ENV
+          echo "DEPLOYMENT_TARGET=production" >> $GITHUB_ENV
           echo "DEPLOYMENT_HOST=${{secrets.DEPLOY_HOST}}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
@@ -74,7 +74,7 @@ jobs:
       - name: Pull image and start container in deploy host
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ env.DEPLOYMENT_HOST }}
+          host: ${{ env.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           proxy_host: ${{ env.DEPLOY_PROXY_HOST }}
