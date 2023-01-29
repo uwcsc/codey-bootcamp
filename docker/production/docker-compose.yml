@@ -1,7 +1,7 @@
 services:
   codey-bot:
-    image: uwcsclub/codey-bot:${TAG}
-    container_name: codey-production
+    image: uwcsclub/codey-bootcamp:${TAG}
+    container_name: codey-bootcamp-production
     env_file:
       - .env
     environment:
