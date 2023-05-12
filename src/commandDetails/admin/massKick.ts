@@ -44,7 +44,7 @@ const massKickExecuteCommand: SapphireMessageExecuteType = async (
 };
 
 export const massKickCommandDetails: CodeyCommandDetails = {
-  name: "massKick",
+  name: "masskick",
   aliases: [],
   description: "Mass kick users who are not executives/mods/coordinators.",
   detailedDescription: `**Examples:**
