@@ -322,8 +322,12 @@ export class CodeyCommand extends SapphireCommand {
       }
     }
 
+    console.log(subcommandName);
     // Move the "argument picker" by one parameter if subcommand name is defined
-    if (subcommandName) {
+    if (
+      subcommandName &&
+      Object.keys(this.details.subcommandDetails).length !== 0
+    ) {
       await commandArgs.pick("string");
     }
     const args: CodeyCommandArguments = {};
@@ -452,9 +456,13 @@ export class CodeyCommand extends SapphireCommand {
       }
     } catch (e) {
       logger.error(e);
-      return await interaction.editReply(
-        commandDetails.messageIfFailure ?? defaultBackendErrorMessage
-      );
+      return await (<Message<boolean>>(
+        (<unknown>(
+          interaction.editReply(
+            commandDetails.messageIfFailure ?? defaultBackendErrorMessage
+          )
+        ))
+      ));
     }
   }
 }
