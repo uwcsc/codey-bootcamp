@@ -322,7 +322,7 @@ export class CodeyCommand extends SapphireCommand {
       }
     }
 
-    console.log(subcommandName);
+    // console.log(subcommandName);
     // Move the "argument picker" by one parameter if subcommand name is defined
     if (
       subcommandName &&

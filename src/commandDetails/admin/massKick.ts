@@ -1,5 +1,5 @@
 import { container } from "@sapphire/framework";
-import { Permissions } from "discord.js";
+import { Guild, Permissions } from "discord.js";
 import {
   CodeyCommandDetails,
   SapphireMessageExecuteType,
@@ -11,6 +11,7 @@ const listOfRoleNamesToNotKick = [
   "Executive",
   "Coordinator",
   "carl-bot",
+  "Codey Bootcamp",
 ];
 
 // Mass kick users not in specified roles
@@ -29,11 +30,12 @@ const massKickExecuteCommand: SapphireMessageExecuteType = async (
 
   // Get the GuildMember object corresponding to the user in the guild
   // This is needed because we can only ban GuildMembers, not Users
-  const guild = await client.guilds.fetch(vars.TARGET_GUILD_ID);
-  const memberList = await (
-    await client.guilds.fetch(guild.id)
-  ).members.fetch();
-  memberList.forEach((member) => {
+  const guild = await client.guilds.fetch({
+    guild: vars.BOOTCAMP_GUILD_ID,
+    cache: true,
+  });
+  const memberList = await guild.members.fetch();
+  memberList.forEach((member, _) => {
     if (
       !member.roles.cache.find((role) =>
         listOfRoleNamesToNotKick.includes(role.name)

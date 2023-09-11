@@ -38,7 +38,7 @@ const banExecuteCommand: SapphireMessageExecuteType = async (
 
   // Get the GuildMember object corresponding to the user in the guild
   // This is needed because we can only ban GuildMembers, not Users
-  const guild = await client.guilds.fetch(vars.TARGET_GUILD_ID);
+  const guild = await client.guilds.fetch(vars.BOOTCAMP_GUILD_ID);
   const memberInGuild = await guild.members.fetch({ user });
 
   if (await banUser(memberInGuild, reason, days)) {
