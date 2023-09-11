@@ -53,12 +53,12 @@ export const startBot = async (): Promise<void> => {
     logger.info({
       event: "init",
     });
-    initBootcamp(client);
 
     client.on("error", client.logger.error);
     // Use this on the discord.js client after sapphire
     // client.on('error', logger.error);
     client.on("ready", initReady);
+    client.on("ready", initBootcamp);
     client.on("messageCreate", (message: Message) => {
       initMessageCreate(client, logger, message);
     });
